@@ -3,50 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>共有カレンダー User Manage Pro</title>
+  <title>共有カレンダー Account Pro</title>
   <style>
-    :root { --main: #007bff; --admin: #dc3545; --bg: #f8f9fa; --today: #e7f3ff; --accent: #ff9f43; --selected: #007bff; }
+    :root { --main: #007bff; --admin: #dc3545; --bg: #f8f9fa; --today: #e7f3ff; --accent: #ff9f43; --selected: #007bff; --success: #28a745; }
     body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 10px; text-align: center; color: #333; }
     .card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 15px; }
-    input, textarea, button { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
+    input, button { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
     .btn-submit { background: var(--main); color: white; border: none; font-weight: bold; cursor:pointer;}
     .btn-danger { background: var(--admin); color: white; border: none; font-size: 11px; padding: 4px 8px; width: auto; cursor:pointer; border-radius: 5px; }
-    .btn-google { background: #fff; color: #757575; border: 1px solid #ddd; font-size: 11px; padding: 4px 8px; width: auto; cursor:pointer; border-radius: 5px; margin-right: 5px; display: inline-flex; align-items: center;}
     .hidden { display: none !important; }
     
-    .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .cal-header button { width: auto; padding: 5px 15px; background: #eee; border: none; }
     .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #ddd; border: 1px solid #ddd; }
-    .cal-label { background: #f0f0f0; font-size: 11px; padding: 5px 0; font-weight: bold; }
-    .cal-day { background: white; min-height: 50px; font-size: 12px; padding: 2px; position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+    .cal-day { background: white; min-height: 50px; font-size: 12px; padding: 2px; cursor: pointer; }
     .cal-day.today { background: var(--today); font-weight: bold; }
-    .cal-day.selected { border: 2px solid var(--selected); background: #f0f7ff; }
-    .has-task-mark { background: #ff4757; border-radius: 50%; width: 6px; height: 6px; margin-top: 4px; }
     
-    .task { text-align: left; border-left: 5px solid var(--main); padding: 12px; background: #fff; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative;}
-    .task-date { font-size: 11px; color: var(--main); font-weight: bold; }
-    .countdown-badge { position: absolute; top: 10px; right: 10px; background: var(--accent); color: white; font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: bold;}
+    .task { text-align: left; border-left: 5px solid var(--main); padding: 12px; background: #fff; margin-bottom: 10px; border-radius: 5px; cursor: pointer; position: relative; transition: 0.3s;}
+    .task.done { opacity: 0.5; border-left-color: var(--success); background: #f0fdf4; text-decoration: line-through; }
+    .done-badge { position: absolute; top: 10px; right: 10px; color: var(--success); font-weight: bold; font-size: 12px; }
     
-    /* ユーザー一覧表のスタイル */
-    .user-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-    .user-table th, .user-table td { border-bottom: 1px solid #eee; padding: 10px; text-align: left; }
-    .user-table th { background: #f8f9fa; color: #666; }
+    .user-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .user-table td, .user-table th { border-bottom: 1px solid #eee; padding: 8px; text-align: left; }
   </style>
 </head>
 <body>
 
-  <div id="view-start">
+  <div id="view-init">
     <h2>🏫 共有カレンダー</h2>
-    <div id="sync-status" style="font-size:10px; color:#999; margin-bottom:10px;">接続中...</div>
+    <p style="font-size:14px; color:#666;">まずはログイン方法を選択してください</p>
     <div class="card">
-      <input type="text" id="login-name" placeholder="団体名">
-      <input type="password" id="login-pass" placeholder="団体パスワード">
-      <input type="text" id="user-display-name" placeholder="あなたの名前（表示用）">
-      <button class="btn-submit" onclick="loginAction(false)">ログイン</button>
+      <button class="btn-submit" onclick="showView('view-start')">ゲスト/団体ログイン</button>
+      <div style="margin:10px; font-size:12px;">または</div>
+      <button style="background:#333; color:white;" onclick="showView('view-user-auth')">個人アカウント作成・ログイン</button>
     </div>
-    <button onclick="showView('view-setup')" style="background:none; border:none; text-decoration:underline; color:#666; font-size:14px;">新規団体を設立する</button>
-    <br><br>
-    <button onclick="showView('view-admin-login')" style="font-size:12px; background:#eee; border:none; padding:5px; border-radius:5px;">管理者ログイン</button>
+  </div>
+
+  <div id="view-user-auth" class="hidden">
+    <h3>👤 個人アカウント</h3>
+    <div class="card">
+      <input type="text" id="user-acc-name" placeholder="名前 (例: 自分のフルネーム)">
+      <input type="password" id="user-acc-pass" placeholder="パスワード (生年月日など推奨)">
+      <button class="btn-submit" onclick="userLoginAction()">ログイン / 作成</button>
+    </div>
+    <button onclick="showView('view-init')">戻る</button>
+  </div>
+
+  <div id="view-start" class="hidden">
+    <h3>団体ログイン</h3>
+    <div class="card">
+      <input type="text" id="login-group-name" placeholder="団体名">
+      <input type="password" id="login-group-pass" placeholder="団体パスワード">
+      <button class="btn-submit" onclick="groupLoginAction(false)">団体に入る</button>
+    </div>
+    <button onclick="showView('view-setup')" style="font-size:12px;">新規団体を設立</button> | 
+    <button onclick="showView('view-admin-login')" style="font-size:12px;">管理者ログイン</button><br><br>
+    <button onclick="showView('view-init')">戻る</button>
   </div>
 
   <div id="view-setup" class="hidden">
@@ -55,72 +65,50 @@
       <input type="text" id="setup-name" placeholder="新しい団体名">
       <input type="password" id="setup-gpass" placeholder="メンバー用パスワード">
       <input type="password" id="setup-opass" placeholder="管理者用パスワード">
-      <button class="btn-submit" onclick="createGroup()">設立して保存</button>
+      <button class="btn-submit" onclick="createGroup()">設立</button>
     </div>
     <button onclick="showView('view-start')">戻る</button>
   </div>
 
   <div id="view-admin-login" class="hidden">
-    <h3>⚙️ 管理者ログイン</h3>
+    <h3>⚙️ 団体管理者ログイン</h3>
     <div class="card">
       <input type="text" id="admin-login-name" placeholder="団体名">
       <input type="password" id="admin-login-pass" placeholder="管理者パスワード">
-      <button class="btn-submit" onclick="loginAction(true)" style="background:var(--admin);">管理者としてログイン</button>
+      <button class="btn-submit" onclick="groupLoginAction(true)" style="background:var(--admin);">管理者ログイン</button>
     </div>
     <button onclick="showView('view-start')">戻る</button>
   </div>
 
   <div id="view-calendar" class="hidden">
-    <h3 id="group-title" style="margin: 10px 0 5px 0;"></h3>
+    <h3 id="group-title"></h3>
+    <div id="user-info-bar" style="font-size:12px; margin-bottom:10px; color:var(--main);"></div>
     <div id="admin-mode-badge" class="hidden" style="color:red; font-size:11px; margin-bottom:10px;">
         【管理者モード】 <button onclick="showView('view-admin-settings')" style="width:auto; padding:2px 8px; font-size:10px;">⚙️ 設定・ユーザー管理</button>
     </div>
     
     <div class="card" style="padding: 10px;">
-      <div class="cal-header">
-        <button onclick="changeMonth(-1)">◀</button>
-        <b id="current-month-display"></b>
-        <button onclick="changeMonth(1)">▶</button>
-      </div>
-      <div class="cal-grid" id="cal-grid"></div>
-      <button id="btn-show-all" onclick="clearSelection()" style="margin-top:10px; font-size:12px; background:#eee; border:none; padding:8px; border-radius:5px; width:auto; display:none;">← 全ての予定を表示</button>
+      <div id="cal-grid" class="cal-grid"></div>
     </div>
 
     <div class="card">
-      <h4 style="margin:0 0 10px 0; text-align:left; font-size:14px;">📅 予定を追加</h4>
       <input type="date" id="t-date">
       <input type="text" id="t-title" placeholder="予定の内容">
-      <input type="password" id="t-delpass" placeholder="削除用パスワード">
       <button class="btn-submit" onclick="addTask()">同期する</button>
     </div>
 
-    <div id="task-list-title" style="text-align:left; font-weight:bold; margin: 10px 5px;">これからの予定</div>
     <div id="task-list"></div>
-    
     <button onclick="location.reload()" style="background:#666; color:white; margin-top:20px;">ログアウト</button>
   </div>
 
   <div id="view-admin-settings" class="hidden">
     <h3>⚙️ 管理者設定</h3>
-    
     <div class="card">
-      <h4>👤 登録ユーザー一覧</h4>
+      <h4>👤 ユーザーパスワード強制変更</h4>
       <table class="user-table">
-        <thead><tr><th>名前</th><th>登録日</th><th>操作</th></tr></thead>
-        <tbody id="user-list-body"></tbody>
+        <thead><tr><th>名前</th><th>パスワード(生年月日等)</th><th>操作</th></tr></thead>
+        <tbody id="admin-user-list"></tbody>
       </table>
-    </div>
-
-    <div class="card" style="border: 2px dashed var(--main);">
-      <h4>パスワード変更</h4>
-      <input type="text" id="edit-gpass" placeholder="メンバーパスワード">
-      <input type="text" id="edit-opass" placeholder="管理者パスワード">
-      <button class="btn-submit" onclick="updatePasswords()">更新</button>
-    </div>
-
-    <div class="card" style="border: 1px solid red;">
-      <h4 style="color:red;">団体削除</h4>
-      <button class="btn-danger" style="width:100%; padding:10px;" onclick="deleteGroup()">団体を完全に削除</button>
     </div>
     <button onclick="showView('view-calendar')">戻る</button>
   </div>
@@ -129,19 +117,18 @@
   const BIN_ID = "6989dd4bae596e708f1d842e";
   const API_KEY = "$2a$10$vOIMxpQkFmMIiTKTr5YlSuw1qB4Qrq3V7S51cnS9Q6b6v3K9rcKrK"; 
 
-  let allData = {};
+  let allData = { groups: {}, globalUsers: {} }; // globalUsersに全ユーザー情報を保存
   let currentGroup = null;
+  let currentUser = null; // 個人ログイン情報
   let isAdminMode = false;
   let displayDate = new Date();
-  let selectedDateStr = null;
 
   async function syncFromCloud() {
-    try {
-      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": API_KEY } });
-      const json = await res.json();
-      allData = json.record || {};
-      document.getElementById('sync-status').innerText = "● 接続済み";
-    } catch (e) { document.getElementById('sync-status').innerText = "接続エラー"; }
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": API_KEY } });
+    const json = await res.json();
+    allData = json.record || { groups: {}, globalUsers: {} };
+    if(!allData.groups) allData.groups = {};
+    if(!allData.globalUsers) allData.globalUsers = {};
   }
 
   async function syncToCloud() {
@@ -152,159 +139,130 @@
     });
   }
 
-  async function createGroup() {
-    const name = document.getElementById('setup-name').value;
-    const gPass = document.getElementById('setup-gpass').value;
-    const oPass = document.getElementById('setup-opass').value;
-    if(!name || !gPass || !oPass) return alert("全て入力してください");
+  // 個人ユーザーログイン/作成
+  async function userLoginAction() {
+    const name = document.getElementById('user-acc-name').value;
+    const pass = document.getElementById('user-acc-pass').value;
+    if(!name || !pass) return alert("入力してください");
     await syncFromCloud();
-    allData[name] = { name, gPass, oPass, tasks: [], users: [] };
-    await syncToCloud();
-    alert("設立完了！");
+    if(!allData.globalUsers[name]) {
+        if(confirm("アカウントが見つかりません。新しく作成しますか？")) {
+            allData.globalUsers[name] = { name, pass };
+            await syncToCloud();
+        } else { return; }
+    } else {
+        if(allData.globalUsers[name].pass !== pass) return alert("パスワードが違います");
+    }
+    currentUser = allData.globalUsers[name];
+    alert(`こんにちは、${name}さん！次に団体を選んでください。`);
     showView('view-start');
   }
 
-  async function loginAction(isOpLogin) {
-    const groupName = isOpLogin ? document.getElementById('admin-login-name').value : document.getElementById('login-name').value;
-    const pass = isOpLogin ? document.getElementById('admin-login-pass').value : document.getElementById('login-pass').value;
-    const userDisplayName = document.getElementById('user-display-name').value;
-
-    if(!isOpLogin && !userDisplayName) return alert("あなたの名前を入力してください");
-
+  async function groupLoginAction(isOp) {
+    const gName = isOp ? document.getElementById('admin-login-name').value : document.getElementById('login-group-name').value;
+    const pass = isOp ? document.getElementById('admin-login-pass').value : document.getElementById('login-group-pass').value;
     await syncFromCloud();
-    const g = allData[groupName];
-    if(g && (isOpLogin ? g.oPass === pass : g.gPass === pass)) {
+    const g = allData.groups[gName];
+    if(g && (isOp ? g.oPass === pass : g.gPass === pass)) {
       currentGroup = g;
-      isAdminMode = isOpLogin;
-      
-      // 一般ユーザーの場合、ユーザーリストに追加
-      if(!isOpLogin) {
-        if(!currentGroup.users) currentGroup.users = [];
-        const exists = currentGroup.users.find(u => u.name === userDisplayName);
-        if(!exists) {
-            currentGroup.users.push({ name: userDisplayName, date: new Date().toLocaleDateString() });
-            await syncToCloud();
-        }
+      isAdminMode = isOp;
+      // 団体ユーザーリストに紐付け
+      if(currentUser && !currentGroup.memberNames?.includes(currentUser.name)) {
+        if(!currentGroup.memberNames) currentGroup.memberNames = [];
+        currentGroup.memberNames.push(currentUser.name);
+        await syncToCloud();
       }
-
-      document.getElementById('group-title').innerText = groupName;
+      document.getElementById('group-title').innerText = gName;
+      document.getElementById('user-info-bar').innerText = currentUser ? `👤 ログイン中: ${currentUser.name}` : "👤 ゲスト利用中";
       document.getElementById('admin-mode-badge').className = isAdminMode ? "" : "hidden";
-      document.getElementById('edit-gpass').value = g.gPass;
-      document.getElementById('edit-opass').value = g.oPass;
-      
       renderCalendar();
-      renderUserList();
+      if(isAdminMode) renderAdminUserList();
       showView('view-calendar');
     } else { alert("間違いがあります"); }
   }
 
-  function renderUserList() {
-    const listBody = document.getElementById('user-list-body');
-    listBody.innerHTML = "";
-    if(!currentGroup.users || currentGroup.users.length === 0) {
-        listBody.innerHTML = "<tr><td colspan='3'>登録ユーザーはいません</td></tr>";
-        return;
-    }
-    currentGroup.users.forEach(u => {
-        listBody.innerHTML += `<tr>
-            <td>${u.name}</td>
-            <td>${u.date}</td>
-            <td><button class="btn-danger" onclick="deleteUser('${u.name}')">削除</button></td>
+  // 管理者用：ユーザーパスワード変更
+  function renderAdminUserList() {
+    const body = document.getElementById('admin-user-list');
+    body.innerHTML = "";
+    (currentGroup.memberNames || []).forEach(mName => {
+        const u = allData.globalUsers[mName];
+        if(!u) return;
+        body.innerHTML += `<tr>
+            <td>${mName}</td>
+            <td><input type="text" id="pw-${mName}" value="${u.pass}" style="padding:5px; font-size:12px;"></td>
+            <td><button class="btn-submit" style="width:auto; padding:5px; font-size:10px;" onclick="forceChangePw('${mName}')">変更</button></td>
         </tr>`;
     });
   }
 
-  async function deleteUser(userName) {
-    if(!confirm(`${userName} を削除しますか？`)) return;
+  async function forceChangePw(mName) {
+    const newPw = document.getElementById(`pw-${mName}`).value;
     await syncFromCloud();
-    allData[currentGroup.name].users = allData[currentGroup.name].users.filter(u => u.name !== userName);
+    allData.globalUsers[mName].pass = newPw;
     await syncToCloud();
-    currentGroup = allData[currentGroup.name];
-    renderUserList();
+    alert(`${mName}さんのパスワードを変更しました。`);
   }
 
-  async function updatePasswords() {
-    await syncFromCloud();
-    allData[currentGroup.name].gPass = document.getElementById('edit-gpass').value;
-    allData[currentGroup.name].oPass = document.getElementById('edit-opass').value;
-    await syncToCloud();
-    alert("更新しました");
-  }
-
-  async function deleteGroup() {
-    if(!confirm("団体を削除しますか？")) return;
-    await syncFromCloud();
-    delete allData[currentGroup.name];
-    await syncToCloud();
-    location.reload();
-  }
-
-  // 以下、カレンダー基本機能（前回同様）
-  async function addTask() {
-    const title = document.getElementById('t-title').value;
-    const date = document.getElementById('t-date').value;
-    const delPass = document.getElementById('t-delpass').value || "0000";
-    if(!title || !date) return alert("入力してください");
-    await syncFromCloud();
-    allData[currentGroup.name].tasks.push({ id: Date.now(), title, date, delPass });
-    await syncToCloud();
-    currentGroup = allData[currentGroup.name];
+  // タップでチェックをつける（個人用）
+  function toggleDone(taskId) {
+    if(!currentUser) return alert("チェック機能を使うには個人ログインが必要です");
+    let doneList = JSON.parse(localStorage.getItem(`done_${currentUser.name}`) || "[]");
+    if(doneList.includes(taskId)) {
+        doneList = doneList.filter(id => id !== taskId);
+    } else {
+        doneList.push(taskId);
+    }
+    localStorage.setItem(`done_${currentUser.name}`, JSON.stringify(doneList));
     renderCalendar();
   }
 
-  function getDiffDays(dateStr) {
-    const target = new Date(dateStr);
-    const today = new Date();
-    today.setHours(0,0,0,0); target.setHours(0,0,0,0);
-    return Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+  async function createGroup() {
+    const name = document.getElementById('setup-name').value;
+    await syncFromCloud();
+    allData.groups[name] = { name, gPass: document.getElementById('setup-gpass').value, oPass: document.getElementById('setup-opass').value, tasks: [], memberNames: [] };
+    await syncToCloud();
+    showView('view-start');
   }
 
-  async function deleteTask(taskId) {
-    const task = currentGroup.tasks.find(t => t.id === taskId);
-    if(!isAdminMode) {
-      const p = prompt("削除パスワード");
-      if(p !== task.delPass) return alert("不一致");
-    }
-    if(!confirm("削除しますか？")) return;
+  async function addTask() {
+    const title = document.getElementById('t-title').value;
+    const date = document.getElementById('t-date').value;
+    if(!title || !date) return alert("入力してください");
     await syncFromCloud();
-    allData[currentGroup.name].tasks = allData[currentGroup.name].tasks.filter(t => t.id !== taskId);
+    allData.groups[currentGroup.name].tasks.push({ id: Date.now(), title, date });
     await syncToCloud();
-    currentGroup = allData[currentGroup.name];
+    currentGroup = allData.groups[currentGroup.name];
     renderCalendar();
   }
 
   function renderCalendar() {
-    const year = displayDate.getFullYear();
-    const month = displayDate.getMonth();
-    document.getElementById('current-month-display').innerText = `${year}年 ${month + 1}月`;
+    const year = displayDate.getFullYear(), month = displayDate.getMonth();
     const grid = document.getElementById('cal-grid');
-    grid.innerHTML = ['日','月','火','水','木','金','土'].map(d => `<div class="cal-label">${d}</div>`).join('');
-    const firstDay = new Date(year, month, 1).getDay();
+    grid.innerHTML = "";
     const lastDate = new Date(year, month + 1, 0).getDate();
-    for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="cal-day"></div>`;
     for(let i=1; i<=lastDate; i++) {
       const dStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-      const hasTask = currentGroup.tasks.some(t => t.date === dStr);
-      grid.innerHTML += `<div class="cal-day ${selectedDateStr===dStr?'selected':''}" onclick="selectDate('${dStr}')">${i}${hasTask?'<div class="has-task-mark"></div>':''}</div>`;
+      const hasT = currentGroup.tasks.some(t => t.date === dStr);
+      grid.innerHTML += `<div class="cal-day">${i}${hasT?'<div style="background:red;width:5px;height:5px;border-radius:50%;margin:auto;"></div>':''}</div>`;
     }
     const list = document.getElementById('task-list');
     list.innerHTML = "";
-    let tasksToShow = currentGroup.tasks.filter(t => selectedDateStr ? t.date === selectedDateStr : getDiffDays(t.date) >= 0);
-    tasksToShow.sort((a,b) => new Date(a.date) - new Date(b.date));
-    tasksToShow.forEach(t => {
-      list.innerHTML += `<div class="task">
-          <div class="countdown-badge ${getDiffDays(t.date)<=3?'countdown-urgent':''}">あと ${getDiffDays(t.date)} 日</div>
-          <div class="task-date">${t.date}</div>
+    let doneList = currentUser ? JSON.parse(localStorage.getItem(`done_${currentUser.name}`) || "[]") : [];
+    currentGroup.tasks.forEach(t => {
+      const isDone = doneList.includes(t.id);
+      list.innerHTML += `<div class="task ${isDone?'done':''}" onclick="toggleDone(${t.id})">
+          ${isDone?'<div class="done-badge">✓ 完了</div>':''}
+          <div style="font-size:11px;">${t.date}</div>
           <b>${t.title}</b>
-          <div style="text-align:right;"><button class="btn-danger" onclick="deleteTask(${t.id})">削除</button></div>
-        </div>`;
+      </div>`;
     });
   }
 
-  function selectDate(dStr) { selectedDateStr = dStr; document.getElementById('btn-show-all').style.display = "inline-block"; renderCalendar(); }
-  function clearSelection() { selectedDateStr = null; document.getElementById('btn-show-all').style.display = "none"; renderCalendar(); }
-  function changeMonth(diff) { displayDate.setMonth(displayDate.getMonth() + diff); selectedDateStr = null; renderCalendar(); }
-  function showView(id) { document.querySelectorAll('body > div').forEach(v => v.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+  function showView(id) {
+    document.querySelectorAll('body > div').forEach(v => v.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+  }
 
   syncFromCloud();
 </script>
